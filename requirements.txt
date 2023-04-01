@@ -1,0 +1,5 @@
+whisper
+supabase
+python-dotenv
+openai
+tenacity
