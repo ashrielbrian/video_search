@@ -25,6 +25,8 @@ class Video:
     playlist_id: typing.Optional[str] = None
     description: str = None
     url: str = None
+    channel_id: str = None
+    channel_title: str = (None,)
 
     # source files
     audio_file: typing.Optional[str] = None
