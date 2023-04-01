@@ -26,7 +26,7 @@ class VideoQueueHandler(BaseRabbitMQ):
 
 class VideoQueueConsumer(BaseRabbitMQ):
     def _initiate(
-        self, queue_name: str, callback: typing.Callable[[Video]], auto_ack=True
+        self, queue_name: str, callback: typing.Callable[[Video], None], auto_ack=True
     ):
         def _wrap_callback(ch, method, properties, body):
             return callback(body)
@@ -35,7 +35,9 @@ class VideoQueueConsumer(BaseRabbitMQ):
             queue=queue_name, on_message_callback=_wrap_callback, auto_ack=auto_ack
         )
 
-    def start_consuming(self, queue_name: str, callback: typing.Callable[[Video]]):
+    def start_consuming(
+        self, queue_name: str, callback: typing.Callable[[Video], None]
+    ):
         self._initiate(queue_name=queue_name, callback=callback)
         self.channel.start_consuming()
 
