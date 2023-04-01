@@ -1,17 +1,16 @@
 """
     Gets a message from a local MQ
 """
-import os
-import argparse
+
+import pickle
 import logging
 import json
-from time import time
+import time
 
-import utils
-import queue_handler
-from models import Video, Segment
-from transcribe import transcribe
 import db
+import queue_handler
+import whisper_transcribe
+from models import Video, Segment
 
 logging.basicConfig()
 
@@ -22,6 +21,9 @@ queue = None
 
 
 def transcribe_video(video: Video):
+    if isinstance(video, bytes):
+        video = pickle.loads(video)
+
     if not video.audio_file:
         logging.warn(f"No audio file found - failed to transcribe video: {video}")
         return
@@ -30,7 +32,7 @@ def transcribe_video(video: Video):
 
     logging.info(f"Transcribing with Whisper {video.title}..")
     start = time.time()
-    result = transcribe(video.audio_file)
+    result = whisper_transcribe.transcribe(video.audio_file)
     logging.info(f"Transcribing wtih Whisper took {(time.time() - start):2f}s")
 
     video.segments = [
@@ -66,6 +68,7 @@ def transcribe_video(video: Video):
     )
     db.insert_segments(video)
 
+    logging.info(f"Done uploading to db. Completed transcription for {video.title}")
     queue.publish(video, "", EMBEDDING_QUEUE_NAME)
 
 
