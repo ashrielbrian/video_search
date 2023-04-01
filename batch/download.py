@@ -27,11 +27,11 @@ ydl_options = {
 
 
 def main(playlist_id: str):
-    queue = queue_handler.VideoQueueHandler()
+    queue = queue_handler.VideoQueueHandler(TRANSCRIBE_QUEUE_NAME)
     videos = utils.get_urls_from_playlist(playlist_id)
 
     for video in videos:
-        utils.download_audio([video], ydl_options=ydl_options)
+        utils.download_audio([video.url], ydl_options=ydl_options)
 
         video.audio_file = os.path.join(DEST_PATH, video.title + ".mp3").replace(
             ":", "_"
