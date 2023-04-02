@@ -8,7 +8,13 @@ from models import Video
 
 class BaseRabbitMQ:
     def __init__(self, queue_name: str, hostname: str = "localhost"):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(hostname))
+        self.connection = pika.BlockingConnection(
+            # setting the heartbeat to 0 disables heartbeat checking
+            # between the client and the rmq server. this is needed
+            # because the transcription takes longer than the broker's
+            # default 60 sec timeout, and causes errors.
+            pika.ConnectionParameters(hostname, heartbeat=0)
+        )
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue_name)
 
@@ -44,25 +50,3 @@ class VideoQueueConsumer(BaseRabbitMQ):
     def stop_consuming(self):
         self.channel.stop_consuming()
         self.connection.close()
-
-
-# if __name__ == "__main__":
-
-#     # Establish a connection to the RabbitMQ server
-#     connection = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
-
-#     # Create a channel
-#     channel = connection.channel()
-
-#     # Create a queue named 'my_queue'
-#     channel.queue_declare(queue="my_queue")
-
-#     for video in videos:
-#         # Serialize the object using pickle
-#         message = pickle.dumps(video)
-
-#         # Publish the message to the queue
-#         channel.basic_publish(exchange="", routing_key="my_queue", body=message)
-
-#     # Close the connection
-#     connection.close()
