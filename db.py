@@ -19,6 +19,22 @@ def insert_video_details(v: typing.Dict):
     return data
 
 
+def get_all_videos():
+    data = supabase.table("video").select("*").execute()
+    return [
+        Video(
+            video_id=v["id"],
+            title=v["title"],
+            transcription=v["transcription"],
+            playlist_id=v["playlist_id"],
+            description=v["description"],
+            channel_id=v["channel_id"],
+            channel_title=v["channel_title"],
+        )
+        for v in data.data
+    ]
+
+
 def insert_segments(video: Video):
     data = (
         supabase.table("segment")
