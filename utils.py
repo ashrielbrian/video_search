@@ -48,30 +48,41 @@ def get_playlists_from_channel(channel_id: str) -> List[Dict[str, str]]:
     return playlists
 
 
+def make_video_from_dict(d: Dict):
+    return Video(
+        video_id=d["snippet"]["resourceId"]["videoId"],
+        title=d["snippet"]["title"],
+        transcription=None,
+        segments=[],
+        playlist_id=d["snippet"]["playlistId"],
+        description=d["snippet"]["description"],
+        url=video_url_constructor(d["snippet"]["resourceId"]["videoId"]),
+        channel_id=d["snippet"]["channelId"],
+        channel_title=d["snippet"]["channelTitle"],
+    )
+
+
 def get_urls_from_playlist(playlist_id: str) -> List[Video]:
     url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId={playlist_id}&key={YOUTUBE_API_KEY}"
 
     response = requests.get(url)
     data = response.json()
 
+    videos = []
     # The playlists are in the `data['items']` list
-    for playlist in data["items"]:
-        print(playlist["snippet"]["title"])
+    if len(data["items"]) > 0:
+        videos.extend([make_video_from_dict(d) for d in data["items"]])
 
-    return [
-        Video(
-            video_id=i["snippet"]["resourceId"]["videoId"],
-            title=i["snippet"]["title"],
-            transcription=None,
-            segments=[],
-            playlist_id=i["snippet"]["playlistId"],
-            description=i["snippet"]["description"],
-            url=video_url_constructor(i["snippet"]["resourceId"]["videoId"]),
-            channel_id=i["snippet"]["channelId"],
-            channel_title=i["snippet"]["channelTitle"],
-        )
-        for i in data["items"]
-    ]
+    while data.get("nextPageToken"):
+        url += f"&pageToken={data['nextPageToken']}"
+        response = requests.get(url)
+        data = response.json()
+
+        if len(data["items"]) > 0:
+            videos.extend([make_video_from_dict(d) for d in data["items"]])
+
+    print([video.title for video in videos])
+    return videos
 
 
 def batch_segments(segments: List[Segment], batch_size=30) -> Iterator[List[Segment]]:
