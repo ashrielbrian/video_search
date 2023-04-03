@@ -28,20 +28,21 @@ sleep: start-rmq
 
 transcribe: start-rmq
 	mkdir -p data/transcriptions/
-	${PYTHON} batch/transcribe.py &
-	echo $$! > $(PID_TRANSCRIBE)
+	${PYTHON} batch/transcribe.py & echo $$! > $(PID_TRANSCRIBE)
 
 embedding: start-rmq transcribe
-	${PYTHON} batch/embedding.py &
-	echo $$! > $(PID_EMBEDDING)
+	${PYTHON} batch/embedding.py & echo $$! > $(PID_EMBEDDING)
 
 download: start-rmq transcribe embedding
 	mkdir -p data/ytdl/
-	${PYTHON} batch/download.py --playlist_id ${PLAYLIST_ID} &
-	echo $$! > $(PID_DOWNLOAD)
+	${PYTHON} batch/download.py --playlist_id ${PLAYLIST_ID} & echo $$! > $(PID_DOWNLOAD)
 
 stop: 
 	-kill `cat $(PID_TRANSCRIBE)` 2>/dev/null || true
 	-kill `cat $(PID_DOWNLOAD)` 2>/dev/null || true
 	-kill `cat $(PID_EMBEDDING)` 2>/dev/null || true
 	rm -f $(PID_TRANSCRIBE) $(PID_DOWNLOAD) $(PID_EMBEDDING)
+
+
+clean-logs:
+	rm data/download.log data/embedding.log data/transcribe.log

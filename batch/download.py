@@ -47,7 +47,7 @@ def main(playlist_id: str):
         utils.download_audio([video.url], ydl_options=ydl_options)
         video.audio_file = os.path.join(DEST_PATH, video.video_id + ".mp3")
         queue.publish(video, "", TRANSCRIBE_QUEUE_NAME)
-
+    logger.info(f"Completed all downloads for ID {playlist_id}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
