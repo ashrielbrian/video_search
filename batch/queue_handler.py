@@ -1,6 +1,5 @@
 import pickle
 import typing
-from functools import partial
 
 import pika
 from models import Video

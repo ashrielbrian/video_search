@@ -6,11 +6,13 @@
 """
 import os
 import argparse
-import logging
 
 import utils
 import queue_handler
 from db import get_all_videos
+from batch.bootstrap_logs import setup_logging
+
+logger = setup_logging("download_logger", "data/download.log")
 
 TRANSCRIBE_QUEUE_NAME = "transcribe"
 DEST_PATH = "data/ytdl"
@@ -38,9 +40,10 @@ def main(playlist_id: str):
 
     for video in videos:
         if video.video_id in existing_videos:
-            logging.info(f"Found video ID {video.video_id} ({video.title}). Skipping..")
+            logger.info(f"Found video ID {video.video_id} ({video.title}). Skipping..")
             continue
 
+        logger.info(f"Downloading ID {video.video_id}: {video.title}")
         utils.download_audio([video.url], ydl_options=ydl_options)
         video.audio_file = os.path.join(DEST_PATH, video.video_id + ".mp3")
         queue.publish(video, "", TRANSCRIBE_QUEUE_NAME)
@@ -49,7 +52,12 @@ def main(playlist_id: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--playlist_id", type=str)
+    parser.add_argument(
+        "--playlist_id",
+        type=str,
+        help="Videos from the playlist to download from. E.g. `PLvVtziP2bL61xbH4RV64MrA_Hdk09AvpN`",
+    )
     args = parser.parse_args()
 
+    logger.info(f"Downloading videos from the Playlist ID: {args.playlist_id}")
     main(args.playlist_id)

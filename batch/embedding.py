@@ -1,19 +1,22 @@
 import pickle
-import logging
 
 import db
 import queue_handler
-from models import Video, Segment
+from models import Video
+from batch.bootstrap_logs import setup_logging
 from oai_embeddings import generate_embeddings_batch
 
 EMBEDDING_QUEUE_NAME = "embedding"
+
+
+logger = setup_logging("embedding_logger", "data/embedding.log")
 
 
 def make_embeddings(video: Video):
     if isinstance(video, bytes):
         video = pickle.loads(video)
 
-    logging.info(
+    logger.info(
         f"Generating embeddings for {video.title}: has {len(video.segments)} embeddings."
     )
     for batch_segments in generate_embeddings_batch(video.segments):
@@ -28,5 +31,5 @@ if __name__ == "__main__":
     try:
         consumer_handler.start_consuming(EMBEDDING_QUEUE_NAME, make_embeddings)
     except KeyboardInterrupt:
-        logging.info("Request to end consuming received. Stopping queue...")
+        logger.info("Request to end consuming received. Stopping queue...")
         consumer_handler.stop_consuming()

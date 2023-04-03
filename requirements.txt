@@ -1,5 +1,8 @@
-whisper
-supabase
+openai-whisper
+supabase==1.0.2
 python-dotenv
-openai
+openai==0.27.2
 tenacity
+yt-dlp==2023.3.4
+requests
+pika==1.3.1
