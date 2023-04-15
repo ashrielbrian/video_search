@@ -1,5 +1,5 @@
 import os
-from typing import List, Dict, Iterator
+from typing import List, Dict, Iterator, Any
 
 import requests
 import yt_dlp
@@ -85,7 +85,25 @@ def get_urls_from_playlist(playlist_id: str) -> List[Video]:
     return videos
 
 
-def batch_segments(segments: List[Segment], batch_size=30) -> Iterator[List[Segment]]:
+def combine_batch_segment(segments: List[Dict], size=5):
+    """Combines raw Whisper segments into larger segment sizes.
+
+    Chooses the start time of the earliest segment, and the end time of the
+    latest segment, and concatenates all the texts together with whitespace.
+
+    Used in postprocessing Whisper transcription."""
+    for i, batch in enumerate(batch_segments(segments, batch_size=size)):
+        if len(batch) > 0:
+            yield Segment(
+                id=i,
+                start=batch[0]["start"],
+                end=batch[-1]["end"],
+                text=" ".join([segment["text"] for segment in batch]),
+                tokens=[token for segment in batch for token in segment["tokens"]],
+            )
+
+
+def batch_segments(segments: List[Any], batch_size=30) -> Iterator[List[Any]]:
     batch = []
 
     for segment in segments:
