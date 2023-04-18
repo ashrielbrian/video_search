@@ -1,7 +1,7 @@
 """
     Gets a message from a local MQ
 """
-
+import os
 import pickle
 import json
 import time
@@ -11,6 +11,7 @@ import queue_handler
 import whisper_transcribe
 from models import Video, Segment
 from batch.bootstrap_logs import setup_logging
+from utils import combine_batch_segment
 
 logger = setup_logging("transcribe_logger", "data/transcribe.log")
 
@@ -30,29 +31,27 @@ def transcribe_video(video: Video):
 
     global queue
 
-    logger.info(f"Transcribing with Whisper {video.title}..")
-    start = time.time()
-    result = whisper_transcribe.transcribe(video.audio_file)
-    logger.info(f"Transcribing wtih Whisper took {(time.time() - start):2f}s")
-
-    video.segments = [
-        Segment(
-            id=s["id"],
-            start=s["start"],
-            end=s["end"],
-            text=s["text"],
-            tokens=s["tokens"],
-            emb=None,
-        )
-        for s in result["segments"]
-    ]
-    video.transcription = result["text"]
     video.transcription_file = f"data/transcriptions/{video.title}.json".replace(
         ":", "_"
     )
 
-    with open(video.transcription_file, "w") as f:
-        json.dump(result, f, indent=4)
+    if os.path.isfile(video.transcription_file):
+        logger.info(
+            f"Already transcribed with whisper. Using existing transcription file.."
+        )
+        with open(video.transcription_file, "r") as f:
+            result = json.load(f)
+    else:
+        logger.info(f"Transcribing with Whisper {video.title}..")
+        start = time.time()
+        result = whisper_transcribe.transcribe(video.audio_file)
+        logger.info(f"Transcribing wtih Whisper took {(time.time() - start):2f}s")
+
+        with open(video.transcription_file, "w") as f:
+            json.dump(result, f, indent=4)
+
+    video.segments = list(combine_batch_segment(result["segments"]))
+    video.transcription = result["text"]
 
     logger.info("Uploading video details and segments to database..")
     db.insert_video_details(
