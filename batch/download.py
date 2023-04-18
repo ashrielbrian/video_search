@@ -43,11 +43,16 @@ def main(playlist_id: str):
             logger.info(f"Found video ID {video.video_id} ({video.title}). Skipping..")
             continue
 
-        logger.info(f"Downloading ID {video.video_id}: {video.title}")
-        utils.download_audio([video.url], ydl_options=ydl_options)
         video.audio_file = os.path.join(DEST_PATH, video.video_id + ".mp3")
+        if os.path.isfile(video.audio_file):
+            logger.info(f"{video.title} ({video.video_id}) already downloaded.")
+        else:
+            logger.info(f"Downloading ID {video.video_id}: {video.title}")
+            utils.download_audio([video.url], ydl_options=ydl_options)
+
         queue.publish(video, "", TRANSCRIBE_QUEUE_NAME)
     logger.info(f"Completed all downloads for ID {playlist_id}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
