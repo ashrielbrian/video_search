@@ -33,7 +33,13 @@ ydl_options = {
 
 def main(playlist_id: str):
     queue = queue_handler.VideoQueueHandler(TRANSCRIBE_QUEUE_NAME)
-    videos = utils.get_urls_from_playlist(playlist_id)
+
+    playlists = playlist_id.split(",")
+    videos = [
+        video
+        for playlist in playlists
+        for video in utils.get_urls_from_playlist(playlist)
+    ]
 
     # avoid videos that have been processed before
     existing_videos = set(video.video_id for video in get_all_videos())
@@ -51,7 +57,7 @@ def main(playlist_id: str):
             utils.download_audio([video.url], ydl_options=ydl_options)
 
         queue.publish(video, "", TRANSCRIBE_QUEUE_NAME)
-    logger.info(f"Completed all downloads for ID {playlist_id}")
+    logger.info(f"Completed all downloads for ID {playlists}")
 
 
 if __name__ == "__main__":
@@ -60,7 +66,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--playlist_id",
         type=str,
-        help="Videos from the playlist to download from. E.g. `PLvVtziP2bL61xbH4RV64MrA_Hdk09AvpN`",
+        help="Videos from the playlist to download from. E.g. `PLvVtziP2bL61xbH4RV64MrA_Hdk09AvpN` \
+            Accepts multiple playlists separated by commas, no whitespaces.",
     )
     args = parser.parse_args()
 

@@ -81,7 +81,6 @@ def get_urls_from_playlist(playlist_id: str) -> List[Video]:
         if len(data["items"]) > 0:
             videos.extend([make_video_from_dict(d) for d in data["items"]])
 
-    print([video.title for video in videos])
     return videos
 
 
