@@ -38,7 +38,7 @@ def get_all_videos():
 def insert_segments(video: Video):
     data = (
         supabase.table("segment")
-        .insert(
+        .upsert(
             [
                 {
                     "id": s.id,
@@ -59,7 +59,7 @@ def insert_segments(video: Video):
 def insert_segment_embeddings(video: Video, segments: typing.List[Segment]):
     data = (
         supabase.table("segment_embedding")
-        .insert(
+        .upsert(
             [
                 {"id": s.id, "video_id": video.video_id, "embedding": s.emb}
                 for s in segments
