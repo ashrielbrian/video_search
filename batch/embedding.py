@@ -33,3 +33,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logger.info("Request to end consuming received. Stopping queue...")
         consumer_handler.stop_consuming()
+    except Exception as e:
+        logger.exception(e)

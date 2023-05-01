@@ -40,9 +40,11 @@ def main(playlist_id: str):
         for playlist in playlists
         for video in utils.get_urls_from_playlist(playlist)
     ]
+    logger.info(f"Total videos to process: {len(videos)}")
 
     # avoid videos that have been processed before
-    existing_videos = set(video.video_id for video in get_all_videos())
+    existing_videos = set(video.video_id for video in get_all_videos("id"))
+    logger.info(f"There are {len(existing_videos)} existing videos in the DB.")
 
     for video in videos:
         if video.video_id in existing_videos:

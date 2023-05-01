@@ -15,7 +15,7 @@ init:
 	python -m venv ${VENV}
 	${PYTHON} -m pip install -r requirements.txt
 
-batch: start-rmq sleep transcribe embedding download
+batch: stop start-rmq sleep transcribe embedding download
 
 start-rmq:
 	# removes existing rabbitmq container
@@ -43,6 +43,7 @@ stop:
 	-kill `cat $(PID_EMBEDDING)` 2>/dev/null || true
 	rm -f $(PID_TRANSCRIBE) $(PID_DOWNLOAD) $(PID_EMBEDDING)
 
-
 clean-logs:
 	rm data/download.log data/embedding.log data/transcribe.log
+
+clean: stop clean-logs

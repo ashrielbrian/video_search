@@ -19,17 +19,17 @@ def insert_video_details(v: typing.Dict):
     return data
 
 
-def get_all_videos():
-    data = supabase.table("video").select("*").execute()
+def get_all_videos(columns="*"):
+    data = supabase.table("video").select(columns).execute()
     return [
         Video(
-            video_id=v["id"],
-            title=v["title"],
-            transcription=v["transcription"],
-            playlist_id=v["playlist_id"],
-            description=v["description"],
-            channel_id=v["channel_id"],
-            channel_title=v["channel_title"],
+            video_id=v.get("id"),
+            title=v.get("title"),
+            transcription=v.get("transcription"),
+            playlist_id=v.get("playlist_id"),
+            description=v.get("description"),
+            channel_id=v.get("channel_id"),
+            channel_title=v.get("channel_title"),
         )
         for v in data.data
     ]
