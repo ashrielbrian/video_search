@@ -68,3 +68,11 @@ def insert_segment_embeddings(video: Video, segments: typing.List[Segment]):
         .execute()
     )
     return data
+
+
+def upload_audio_file(bucket_name: str, dest_path: str, source_path: str):
+    res = supabase.storage.from_(bucket_name).upload(
+        f"{bucket_name}/{dest_path}", source_path, file_options={"x-upsert": "true"}
+    )
+    print(f"{dest_path} success: {res.is_success}")
+    return res.is_success
