@@ -26,7 +26,8 @@ class Video:
     description: str = None
     url: str = None
     channel_id: str = None
-    channel_title: str = (None,)
+    channel_title: str = None
+    thumbnail: str = None
 
     # source files
     audio_file: typing.Optional[str] = None

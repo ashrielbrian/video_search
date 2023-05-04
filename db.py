@@ -30,6 +30,7 @@ def get_all_videos(columns="*"):
             description=v.get("description"),
             channel_id=v.get("channel_id"),
             channel_title=v.get("channel_title"),
+            thumbnail=v.get("thumbnail"),
         )
         for v in data.data
     ]

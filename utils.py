@@ -59,6 +59,7 @@ def make_video_from_dict(d: Dict):
         url=video_url_constructor(d["snippet"]["resourceId"]["videoId"]),
         channel_id=d["snippet"]["channelId"],
         channel_title=d["snippet"]["channelTitle"],
+        thumbnail=d["snippet"]["thumbnails"]["standard"]["url"],
     )
 
 

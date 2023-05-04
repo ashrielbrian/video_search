@@ -63,6 +63,7 @@ def transcribe_video(video: Video):
             "channel_id": video.channel_id,
             "channel_title": video.channel_title,
             "description": video.description,
+            "thumbnail": video.thumbnail,
         }
     )
     db.insert_segments(video)
