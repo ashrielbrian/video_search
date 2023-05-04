@@ -8,24 +8,56 @@ import { Grid } from '@/components/Grid';
 import { Video, VideoSearch } from '@/lib/types';
 import LoadingSpinner from "@/components/Loading";
 
-const fetchAllVideos = async (limit: number = 10) => {
-    const { data, error } = await supabase.from("video").select().limit(10)
-    return data;
-}
+const fetchVideos = async (offset: number, limit: number = 10): Promise<Video[]> => {
+    const { data, error } = await supabase.from('video').select().range(offset, offset + limit - 1);
+    if (error) {
+        console.error(error);
+        return [];
+    }
+    return data ?? [];
+};
+
 
 export default function Home() {
 
     const [videos, setVideos] = useState<Video[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isMoreLoading, setIsMoreLoading] = useState(false);
+    const [offset, setOffset] = useState(0);
+
+    const fetchMoreVideos = async () => {
+        setIsMoreLoading(true);
+        const newVideos = await fetchVideos(offset, 10);
+        setVideos(prevVideos => [...prevVideos, ...newVideos]);
+        setOffset(prevOffset => prevOffset + 10);
+        setIsMoreLoading(false);
+    };
+
 
     useEffect(() => {
-        // Fetch all videos and set them as the initial state
-        const fetchData = async () => {
-            const data = await fetchAllVideos();
-            setVideos(data);
+        // Fetch initial videos
+        const fetchInitialVideos = async () => {
+            setIsLoading(true);
+            const initialVideos = await fetchVideos(offset, 10);
+            setVideos(initialVideos);
+            setIsLoading(false);
         };
-        fetchData();
+        fetchInitialVideos();
     }, []);
+
+    useEffect(() => {
+        // Attach event listener for infinite scrolling
+        const handleScroll = () => {
+            if (
+                window.innerHeight + document.documentElement.scrollTop ===
+                document.documentElement.offsetHeight
+            ) {
+                fetchMoreVideos();
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [offset]);
 
 
     return (
@@ -44,6 +76,9 @@ export default function Home() {
 
                 {/* Results */}
                 {isLoading ? <LoadingSpinner /> : <Grid videos={videos} />}
+
+                {/* Loading spinner for infinite scrolling */}
+                {isMoreLoading && <LoadingSpinner />}
 
             </div>
         </main>
