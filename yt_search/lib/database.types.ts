@@ -63,6 +63,7 @@ export interface Database {
           description: string | null
           id: string
           playlist_id: string | null
+          thumbnail: string | null
           title: string
           transcription: string | null
         }
@@ -73,6 +74,7 @@ export interface Database {
           description?: string | null
           id: string
           playlist_id?: string | null
+          thumbnail?: string | null
           title: string
           transcription?: string | null
         }
@@ -83,6 +85,7 @@ export interface Database {
           description?: string | null
           id?: string
           playlist_id?: string | null
+          thumbnail?: string | null
           title?: string
           transcription?: string | null
         }
@@ -99,8 +102,12 @@ export interface Database {
           match_count: number
         }
         Returns: {
+          id: string
+          title: string
+          playlist_id: string
+          channel_title: string
+          description: string
           segment_id: number
-          video_id: string
           content: string
           similarity: number
           start_time: number
