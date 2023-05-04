@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "update-types": "npx supabase gen types typescript --project-id \"$PROJECT_ID\" > types/supabase.ts"
+        "update-types": "npx supabase gen types typescript --project-id \"$PROJECT_ID\" > lib/database.types.ts"
     },
     "dependencies": {
         "@fortawesome/free-solid-svg-icons": "^6.4.0",
