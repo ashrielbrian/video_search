@@ -16,8 +16,12 @@ create or replace function match_segment (
   match_count int
 )
 returns table (
+  id varchar,
+  title varchar,
+  playlist_id varchar,
+  channel_title text,
+  description text,
   segment_id int8,
-  video_id varchar,
   content text,
   similarity float,
   start_time float,
@@ -28,8 +32,12 @@ as $$
 begin
   return query
   select
+    video.id,
+    video.title,
+    video.playlist_id,
+    video.channel_title,
+    video.description,
     segment_embedding.id,
-    segment_embedding.video_id,
     segment.text,
     1 - (segment_embedding.embedding <=> query_embedding) as similarity,
     segment.start_time,
@@ -37,6 +45,8 @@ begin
   from segment_embedding
   JOIN segment
   ON segment.video_id = segment_embedding.video_id and segment.id = segment_embedding.id
+  JOIN video
+  ON video.id = segment_embedding.video_id
   where 1 - (segment_embedding.embedding <=> query_embedding) > similarity_threshold
   order by similarity desc
   limit match_count;
