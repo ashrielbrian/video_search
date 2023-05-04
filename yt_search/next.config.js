@@ -6,7 +6,7 @@ const nextConfig = {
     images: {
         remotePatterns: [{
             protocol: "https",
-            hostname: "t0.gstatic.com",
+            hostname: "i.ytimg.com",
             port: "",
         }]
     }
