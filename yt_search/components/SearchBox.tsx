@@ -41,7 +41,7 @@ export const SearchBox = ({ getSearchResults, setGridLoadingStatus }) => {
                 <input
                     type="text"
                     id="text-input"
-                    className="w-full border border-gray-300 py-2 px-4 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-indigo-300 py-2 px-4  text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="Search across MLJ sermons here.."
                     onChange={handleInputChange}
                     disabled={isSearching}
