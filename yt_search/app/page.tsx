@@ -33,6 +33,14 @@ export default function Home() {
         setIsMoreLoading(false);
     };
 
+    const handleScroll = () => {
+        if (
+            window.innerHeight + document.documentElement.scrollTop ===
+            document.documentElement.offsetHeight
+        ) {
+            fetchMoreVideos();
+        }
+    };
 
     useEffect(() => {
         // Fetch initial videos
@@ -47,30 +55,30 @@ export default function Home() {
 
     useEffect(() => {
         // Attach event listener for infinite scrolling
-        const handleScroll = () => {
-            if (
-                window.innerHeight + document.documentElement.scrollTop ===
-                document.documentElement.offsetHeight
-            ) {
-                fetchMoreVideos();
-            }
-        };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, [offset]);
 
+    const getSearchResults = (videos: VideoSearch[]) => {
+        window.removeEventListener('scroll', handleScroll);
+        setVideos(videos);
+    }
+
 
     return (
         <main>
-            <div className='max-w-5xl mx-auto pt-4 text-center'>
+            <div className='max-w-7xl mx-auto pt-4 text-center'>
                 {/* Title */}
                 <h1 className='text-4xl font-extrabold'>
-                    Dr. Martyn LLoyd-Jones <span className="bg-gradient-to-r from-indigo-500 to-red-200 text-transparent bg-clip-text">Search</span>
+                    <span className="bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text">Dr. Martyn LLoyd-Jones</span>
                 </h1>
+
+                <p className="mt-2 text-gray-700">Search over 1600 sermons from the Good Doctor. E.g., try <span className="font-semibold">"why do good people suffer?"</span> </p>
+                <p className="mt-1 text-gray-700">Sermons indexed from the <a href="https://www.mljtrust.org/" target="_blank" className="hover:underline hover:font-semibold">MLJ Trust's</a> sermon library. </p>
 
                 {/* Search box */}
                 <SearchBox
-                    getSearchResults={(videos: Video[]) => setVideos(videos)}
+                    getSearchResults={getSearchResults}
                     setGridLoadingStatus={(status: boolean) => setIsLoading(status)}
                 />
 
@@ -81,6 +89,6 @@ export default function Home() {
                 {isMoreLoading && <LoadingSpinner />}
 
             </div>
-        </main>
+        </main >
     )
 }
