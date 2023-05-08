@@ -12,6 +12,38 @@ export interface Database {
       segment: {
         Row: {
           created_at: string | null
+          embedding: string | null
+          end_time: number | null
+          id: number
+          start_time: number | null
+          text: string
+          tokens: number[] | null
+          video_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          embedding?: string | null
+          end_time?: number | null
+          id: number
+          start_time?: number | null
+          text: string
+          tokens?: number[] | null
+          video_id: string
+        }
+        Update: {
+          created_at?: string | null
+          embedding?: string | null
+          end_time?: number | null
+          id?: number
+          start_time?: number | null
+          text?: string
+          tokens?: number[] | null
+          video_id?: string
+        }
+      }
+      segment_duplicate: {
+        Row: {
+          created_at: string | null
           end_time: number | null
           id: number
           start_time: number | null
@@ -107,6 +139,26 @@ export interface Database {
           playlist_id: string
           channel_title: string
           description: string
+          segment_id: number
+          content: string
+          similarity: number
+          start_time: number
+          end_time: number
+        }[]
+      }
+      search_segment: {
+        Args: {
+          query_embedding: string
+          similarity_threshold: number
+          match_count: number
+        }
+        Returns: {
+          id: string
+          title: string
+          playlist_id: string
+          channel_title: string
+          description: string
+          thumbnail: string
           segment_id: number
           content: string
           similarity: number

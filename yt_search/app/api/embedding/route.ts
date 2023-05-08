@@ -18,7 +18,7 @@ const getEmbedding = async (query: string) => {
 }
 
 const search = async (queryEmbedding: number[]) => {
-    const results = await supabase.rpc("match_segment", {
+    const results = await supabase.rpc("search_segment", {
         query_embedding: JSON.stringify(queryEmbedding),
         similarity_threshold: 0.78,
         match_count: 10
