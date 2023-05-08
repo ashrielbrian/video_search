@@ -1,13 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { VideoSearch } from "@/lib/types";
+import { useState, ChangeEvent, FormEvent } from "react"
 
-export const SearchBox = ({ getSearchResults, setGridLoadingStatus }) => {
+interface SearchBoxProps {
+    getSearchResults: (videos: VideoSearch[]) => void; // replace `void` with the return type of `getSearchResults`
+    setGridLoadingStatus: (status: boolean) => void;
+}
+
+export const SearchBox = ({ getSearchResults, setGridLoadingStatus }: SearchBoxProps) => {
 
     const [query, setQuery] = useState("");
     const [isSearching, setIsSearching] = useState(false);
 
-    const handleSearch = async (event) => {
+    const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setIsSearching(true);
         setGridLoadingStatus(true);
@@ -30,7 +36,7 @@ export const SearchBox = ({ getSearchResults, setGridLoadingStatus }) => {
         setGridLoadingStatus(false);
     }
 
-    const handleInputChange = (event) => {
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         setQuery(event.target.value);
     };
 

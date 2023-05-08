@@ -8,11 +8,11 @@ export const Cell = ({ video }: { video: Video | VideoSearch }) => {
     let url = `https://youtube.com/watch?v=${video.id}`;
     let desc = video.description?.substring(0, 500) + "...";
 
-    if (video.start_time) {
+    if ("start_time" in video) {
         url = url + `&t=${Math.floor(video.start_time)}`
     }
 
-    if (video.content) {
+    if ("content" in video) {
         desc = `...${video.content}`;
     }
 
@@ -32,7 +32,7 @@ export const Cell = ({ video }: { video: Video | VideoSearch }) => {
                     <p className="text-gray-700 flex-grow">{desc}</p>
 
                     <div className="flex flex-row justify-center">
-                        {video.start_time ? (
+                        {"start_time" in video ? (
                             <Link href={url} target="_blank">
                                 <button className="bg-transparent text-indigo-500 font-semibold border border-indigo-500 py-2 px-4 mt-4 mr-2 hover:bg-indigo-600  hover:text-white transition-colors duration-300 ease-in-out">Listen to Snippet</button>
                             </Link>
