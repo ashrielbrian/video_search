@@ -1,16 +1,7 @@
--- segment embedding table
-CREATE TABLE segment_embedding (
-  id int8 NOT NULL,
-  video_id varchar NOT NULL,
-  embedding vector(1536) NOT NULL,
-  PRIMARY KEY (id, video_id),
-  CONSTRAINT fk_video_id
-    FOREIGN KEY (video_id)
-    REFERENCES public.video (id)
-);
+alter table segment add column embedding vector(1536);
 
 -- similarity search function
-create or replace function match_segment (
+create or replace function search_segment (
   query_embedding vector(1536),
   similarity_threshold float,
   match_count int
@@ -21,6 +12,7 @@ returns table (
   playlist_id varchar,
   channel_title text,
   description text,
+  thumbnail text,
   segment_id int8,
   content text,
   similarity float,
@@ -37,27 +29,25 @@ begin
     video.playlist_id,
     video.channel_title,
     video.description,
-    segment_embedding.id,
+    video.thumbnail,
+    segment.id,
     segment.text,
-    1 - (segment_embedding.embedding <=> query_embedding) as similarity,
+    1 - (segment.embedding <=> query_embedding) as similarity,
     segment.start_time,
     segment.end_time
-  from segment_embedding
-  JOIN segment
-  ON segment.video_id = segment_embedding.video_id and segment.id = segment_embedding.id
+  from segment
   JOIN video
-  ON video.id = segment_embedding.video_id
-  where 1 - (segment_embedding.embedding <=> query_embedding) > similarity_threshold
-  order by similarity desc
+  ON video.id = segment.video_id
+  order by (segment.embedding <=> query_embedding)
   limit match_count;
 end;
 $$;
--- DROP FUNCTION match_segment(vector(1536), float, int);
+-- DROP FUNCTION search_segment(vector(1536), float, int);
 
 -- vector index
 -- IMPORTANT: lists ~= 4 * sqrt(num_rows)
 -- Tried to use lists = 1000 (on expectation of 1M rows), 
 -- but insufficient memory on supabase free tier
-create index on segment_embedding 
+create index on segment
 using ivfflat (embedding vector_cosine_ops)
 with (lists = 100);
