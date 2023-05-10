@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className={assistant.className}>
+            <body className={assistant.className + " bg-stone-50"}>
 
                 <Header />
 
