@@ -17,6 +17,8 @@ const fetchVideos = async (offset: number, limit: number = 10): Promise<Video[]>
     return data ?? [];
 };
 
+// TODO: On search, move to a search results page
+// TODO: combine snippets from the same videos into a single card
 
 export default function Home() {
 
@@ -47,6 +49,7 @@ export default function Home() {
         const fetchInitialVideos = async () => {
             setIsLoading(true);
             const initialVideos = await fetchVideos(offset, 10);
+            setOffset(prevOffset => prevOffset + 10);
             setVideos(initialVideos);
             setIsLoading(false);
         };
