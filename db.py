@@ -36,6 +36,33 @@ def get_all_videos(columns="*"):
     ]
 
 
+def get_video(video_id: str, with_segment=False, columns="*"):
+    if with_segment:
+        columns += ", segment(id, text)"
+    v = (
+        supabase.table("video")
+        .select(columns)
+        .eq("id", video_id)
+        .single()
+        .execute()
+        .data
+    )
+
+    print(v)
+
+    return Video(
+        video_id=v.get("id"),
+        title=v.get("title"),
+        transcription=v.get("transcription"),
+        playlist_id=v.get("playlist_id"),
+        description=v.get("description"),
+        channel_id=v.get("channel_id"),
+        channel_title=v.get("channel_title"),
+        thumbnail=v.get("thumbnail"),
+        segments=[Segment(**s) for s in v.get("segment")] if v.get("segment") else [],
+    )
+
+
 def insert_segments(video: Video):
     data = (
         supabase.table("segment")
