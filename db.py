@@ -63,7 +63,7 @@ def get_video(video_id: str, with_segment=False, columns="*"):
     )
 
 
-def insert_segments(video: Video):
+def insert_segments(video: Video, segments: typing.List[Segment]):
     data = (
         supabase.table("segment")
         .upsert(
@@ -75,8 +75,9 @@ def insert_segments(video: Video):
                     "end_time": s.end,
                     "text": s.text,
                     "tokens": s.tokens,
+                    "embedding": s.emb,
                 }
-                for s in video.segments
+                for s in segments
             ]
         )
         .execute()
@@ -84,17 +85,23 @@ def insert_segments(video: Video):
     return data
 
 
-def insert_segment_embeddings(video: Video, segments: typing.List[Segment]):
+def insert_summary(summaries: typing.List):
     data = (
-        supabase.table("segment_embedding")
+        supabase.table("summary")
         .upsert(
             [
-                {"id": s.id, "video_id": video.video_id, "embedding": s.emb}
-                for s in segments
+                {
+                    "video_id": s["video_id"],
+                    "order": s["order"],
+                    "title": s.get("title"),
+                    "summary": s["summary"],
+                }
+                for s in summaries
             ]
         )
         .execute()
     )
+
     return data
 
 

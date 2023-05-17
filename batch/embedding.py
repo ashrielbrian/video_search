@@ -16,11 +16,25 @@ def make_embeddings(video: Video):
     if isinstance(video, bytes):
         video = pickle.loads(video)
 
+    logger.info("Uploading video details to database..")
+    db.insert_video_details(
+        {
+            "id": video.video_id,
+            "title": video.title,
+            "transcription": video.transcription,
+            "playlist_id": video.playlist_id,
+            "channel_id": video.channel_id,
+            "channel_title": video.channel_title,
+            "description": video.description,
+            "thumbnail": video.thumbnail,
+        }
+    )
+
     logger.info(
         f"Generating embeddings for {video.title}: has {len(video.segments)} embeddings."
     )
     for batch_segments in generate_embeddings_batch(video.segments):
-        db.insert_segment_embeddings(video, batch_segments)
+        db.insert_segments(video, batch_segments)
 
     # TODO: add db query to get all embeddings and verify lengths are consistent
 

@@ -53,26 +53,11 @@ def transcribe_video(video: Video):
     video.segments = list(combine_batch_segment(result["segments"]))
     video.transcription = result["text"]
 
-    logger.info("Uploading video details and segments to database..")
-    db.insert_video_details(
-        {
-            "id": video.video_id,
-            "title": video.title,
-            "transcription": video.transcription,
-            "playlist_id": video.playlist_id,
-            "channel_id": video.channel_id,
-            "channel_title": video.channel_title,
-            "description": video.description,
-            "thumbnail": video.thumbnail,
-        }
-    )
-    db.insert_segments(video)
     queue.publish(video, "", EMBEDDING_QUEUE_NAME)
     logger.info(f"Done uploading to db. Completed transcription for {video.title}")
 
 
 if __name__ == "__main__":
-
     consumer_handler = queue_handler.VideoQueueConsumer(TRANSCRIBE_QUEUE_NAME)
     queue = queue_handler.VideoQueueHandler(EMBEDDING_QUEUE_NAME)
 
