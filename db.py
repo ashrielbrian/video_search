@@ -47,9 +47,6 @@ def get_video(video_id: str, with_segment=False, columns="*"):
         .execute()
         .data
     )
-
-    print(v)
-
     return Video(
         video_id=v.get("id"),
         title=v.get("title"),
