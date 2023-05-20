@@ -5,7 +5,7 @@ import time
 import typing
 from typing import List, Dict
 import db
-from models import Video
+from models import Video, Segment
 
 import numpy as np
 from scipy.spatial.distance import cosine
@@ -60,16 +60,33 @@ def create_sentences(segments, MIN_WORDS, MAX_WORDS):
     return sentences
 
 
-def create_chunks(sentences, CHUNK_LENGTH, STRIDE):
+def create_chunks(sentences: typing.List, CHUNK_LENGTH: int, STRIDE: int):
     chunks = []
     for i in range(0, len(sentences), (CHUNK_LENGTH - STRIDE)):
         chunk = sentences[i : i + CHUNK_LENGTH]
         chunk_text = " ".join(c["text"] for c in chunk)
-        print(chunk_text)
         chunks.append(
             {
                 "start_sentence_num": chunk[0]["sentence_num"],
                 "end_sentence_num": chunk[-1]["sentence_num"],
+                "text": chunk_text,
+                "num_words": len(chunk_text.split(" ")),
+            }
+        )
+    return chunks
+
+
+def create_chunks_from_segments(
+    segments: List[Segment], CHUNK_LENGTH: int, STRIDE: int
+) -> List[Dict]:
+    chunks = []
+    for i in range(0, len(segments), (CHUNK_LENGTH - STRIDE)):
+        chunk = segments[i : i + CHUNK_LENGTH]
+        chunk_text = " ".join(c.text for c in chunk)
+        chunks.append(
+            {
+                "start_segment": chunk[0].id,
+                "end_segment": chunk[-1].id,
                 "text": chunk_text,
                 "num_words": len(chunk_text.split(" ")),
             }
@@ -157,7 +174,7 @@ def get_embeddings(summaries):
 
 
 def get_louvain_communities(
-    summary_similarity_matrix,
+    summary_similarity_matrix: np.ndarray,
     num_topics=8,
     bonus_constant=0.15,
     min_size=3,
@@ -166,6 +183,9 @@ def get_louvain_communities(
     iterations=40,
 ) -> typing.Tuple[List[int], List[List[int]]]:
     """
+    summary_similarity_matrix is a (n x n) matrix where n is the number of
+    chunks generated.
+
     Returns two elements. First is a list, chunk_topics where
     chunk_topics[i] is the topic_id that the i'th chunk belongs to.
     topics_title[j] contains the list of chunk indexes that belong
@@ -368,19 +388,14 @@ def summarize_by_topics(
 def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-003"):
     # fetch video
     if isinstance(video, str):
-        video = db.get_video(video, columns="transcription")
+        video = db.get_video(video, with_segment=True, columns="transcription")
 
     # preprocess transcription, split into sentences
-    segments = video.transcription.strip().split(".")
+    for i, s in enumerate(video.segments):
+        video.segments[i].text = s.text.strip().replace("  ", " ")
 
-    # put the . back in; further split by comma; finally flatten
-    segments = [segment + "." for segment in segments]
-    segments = [segment.split(",") for segment in segments]
-    segments = [item for sublist in segments for item in sublist]
-
-    # combine sentences into chunks (5:1 ratio)
-    sentences = create_sentences(segments, MIN_WORDS=30, MAX_WORDS=80)
-    chunks = create_chunks(sentences, CHUNK_LENGTH=5, STRIDE=1)
+    # combine sentences into chunks (4:1 ratio)
+    chunks = create_chunks_from_segments(video.segments, CHUNK_LENGTH=4, STRIDE=1)
     chunks_text = [chunk["text"].strip() for chunk in chunks]
 
     # use LLM to generate titles and summaries of chunks
@@ -390,6 +405,7 @@ def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-0
     output_titles = [e["title"] for e in chunk_summaries]
 
     # generate embedding vectors of titles and summaries
+    # TODO: save embeddings of chunk summaries (?)
     summary_similarity = get_embeddings(output_summaries)
 
     # use louvain communities to generate topics
@@ -402,6 +418,9 @@ def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-0
 
     return topic_outputs, final_summary
 
+
+# TODO: save to db topic to segment link: topic -> chunk -> segment
+# TODO: save to db topics and summaries
 
 if __name__ == "__main__":
     topics, summary = generate_summary("K3AwnWcvtzQ", model_name="gpt-3.5-turbo")
