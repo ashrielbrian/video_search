@@ -385,10 +385,49 @@ def summarize_by_topics(
     return topic_outputs, final_summary
 
 
+def get_segments_from_topic(
+    chunk_topics: List[int], chunks: List[Dict], num_topics: int
+) -> List[List[int]]:
+    """Returns all the segments IDs related to each topic.
+    In order to generate summaries, we collate segments into chunks,
+    and from chunks, we use the louvain algorithm to generate topics:
+      i.e. segments -> chunks -> topics.
+
+    We want to associate each topic generated with the source segment.
+    Inputs:
+        chunk_topics:
+            chunk_topics[i] returns the topic ID associated to the i'th chunk.
+        chunks:
+            Dict of the chunks containing the start and end segment IDs that
+            make up this chunk.
+        num_topics:
+            Number of total topics generated from louvain community algo.
+    """
+    assert len(chunk_topics) == len(chunks)
+
+    topic_segments = [[] for _ in range(num_topics)]
+
+    for chunk_i in range(len(chunk_topics)):
+        topic = chunk_topics[chunk_i]
+        curr_chunk = chunks[chunk_i]
+        segment_ids = list(
+            range(curr_chunk["start_segment"], curr_chunk["end_segment"] + 1)
+        )
+        topic_segments[topic].extend(segment_ids)
+
+    # sort the segment IDs for each topic and remove duplicate segments
+    for i, segment_ids in enumerate(topic_segments):
+        topic_segments[i] = sorted(list(set(segment_ids)))
+
+    return topic_segments
+
+
 def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-003"):
     # fetch video
     if isinstance(video, str):
-        video = db.get_video(video, with_segment=True, columns="transcription")
+        video = db.get_video(video, with_segment=True, columns="id")
+
+    assert video.video_id is not None
 
     # preprocess transcription, split into sentences
     for i, s in enumerate(video.segments):
@@ -416,11 +455,43 @@ def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-0
         chunk_summaries, topic_groups, model_name=model_name
     )
 
-    return topic_outputs, final_summary
+    # save to db
+    topic_segments = get_segments_from_topic(chunk_topics, chunks, len(topic_groups))
 
+    db_summaries = [
+        # save the overall summary as order 0
+        {
+            "video_id": video.video_id,
+            "order": 0,
+            "title": "Overall Summary",
+            "summary": final_summary,
+            "segment_ids": [],
+            "start_segment_id": None,
+        },
+        # the rest of the topics starting at order 1
+        *[
+            {
+                "video_id": video.video_id,
+                "order": i + 1,
+                "title": topic["title"],
+                "summary": topic["summary"],
+                "segment_ids": topic_segments[i],
+                "start_segment_id": topic_segments[i][0],
+            }
+            for i, topic in enumerate(topic_outputs)
+        ],
+    ]
 
-# TODO: save to db topic to segment link: topic -> chunk -> segment
-# TODO: save to db topics and summaries
+    db.insert_summary(db_summaries)
+
+    return (
+        topic_outputs,
+        final_summary,
+    )
+
 
 if __name__ == "__main__":
-    topics, summary = generate_summary("K3AwnWcvtzQ", model_name="gpt-3.5-turbo")
+    (
+        topic_outputs,
+        final_summary,
+    ) = generate_summary("K3AwnWcvtzQ", model_name="gpt-3.5-turbo")

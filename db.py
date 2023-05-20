@@ -92,6 +92,8 @@ def insert_summary(summaries: typing.List):
                     "order": s["order"],
                     "title": s.get("title"),
                     "summary": s["summary"],
+                    "segment_ids": s["segment_ids"],
+                    "start_segment_id": s.get("start_segment_id"),
                 }
                 for s in summaries
             ]
