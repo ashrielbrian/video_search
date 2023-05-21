@@ -10,7 +10,7 @@ from models import Video, Segment
 import numpy as np
 from scipy.spatial.distance import cosine
 
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 from langchain import OpenAI, PromptTemplate, LLMChain
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
@@ -152,14 +152,22 @@ def summarize_chunks(
     return output
 
 
-def get_embeddings(summaries):
+def get_embeddings(summaries, model_name="all-mpnet-base-v2"):
     # Use OpenAI to embed the titles. Size of _embeds: (num_chunks x 1536)
-    openai_embed = OpenAIEmbeddings()
+    if model_name == "all-mpnet-base-v2":
+        print("Using all-mpnet-base-v2 to generate embeddings..")
+        embed_model = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-mpnet-base-v2",
+            model_kwargs={"device": "cuda"},
+        )
+    else:
+        embed_model = OpenAIEmbeddings()
 
-    summary_embeds = np.array(openai_embed.embed_documents(summaries))
+    summary_embeds = np.array(embed_model.embed_documents(summaries))
 
     num_chunks = len(summaries)
     print(f"Number of chunks: {num_chunks}")
+    print(f"Shape of summary embeddings: {summary_embeds.shape}")
 
     # Get similarity matrix between the embeddings of the chunk summaries
     summary_similarity_matrix = np.zeros((num_chunks, num_chunks))
@@ -434,7 +442,7 @@ def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-0
         video.segments[i].text = s.text.strip().replace("  ", " ")
 
     # combine sentences into chunks (4:1 ratio)
-    chunks = create_chunks_from_segments(video.segments, CHUNK_LENGTH=4, STRIDE=1)
+    chunks = create_chunks_from_segments(video.segments, CHUNK_LENGTH=5, STRIDE=1)
     chunks_text = [chunk["text"].strip() for chunk in chunks]
 
     # use LLM to generate titles and summaries of chunks

@@ -12,3 +12,5 @@ langchain
 networkx
 scipy
 numpy
+transformers
+sentence_transformers
