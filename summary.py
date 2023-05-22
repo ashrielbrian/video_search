@@ -2,8 +2,9 @@
 Module to generate video summaries with topics.
 """
 import time
-import typing
-from typing import List, Dict
+import logging
+from typing import List, Dict, Tuple, Union
+
 import db
 from models import Video, Segment
 
@@ -90,7 +91,7 @@ def create_sentences(segments, MIN_WORDS, MAX_WORDS):
     return sentences
 
 
-def create_chunks(sentences: typing.List, CHUNK_LENGTH: int, STRIDE: int):
+def create_chunks(sentences: List, CHUNK_LENGTH: int, STRIDE: int):
     chunks = []
     for i in range(0, len(sentences), (CHUNK_LENGTH - STRIDE)):
         chunk = sentences[i : i + CHUNK_LENGTH]
@@ -177,7 +178,7 @@ def summarize_chunks(
 
     output = parse_title_summary_results([e["text"] for e in map_llm_chain_results])
 
-    print(f"Stage 1 done time {time.time() - start_time}")
+    logging.info(f"Stage 1 done time {time.time() - start_time}")
 
     return output
 
@@ -185,7 +186,7 @@ def summarize_chunks(
 def get_embeddings(summaries, model_name="all-mpnet-base-v2"):
     # Use OpenAI to embed the titles. Size of _embeds: (num_chunks x 1536)
     if model_name == "all-mpnet-base-v2":
-        print("Using all-mpnet-base-v2 to generate embeddings..")
+        logging.info("Using all-mpnet-base-v2 to generate embeddings..")
         embed_model = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-mpnet-base-v2",
             model_kwargs={"device": "cuda"},
@@ -196,8 +197,8 @@ def get_embeddings(summaries, model_name="all-mpnet-base-v2"):
     summary_embeds = np.array(embed_model.embed_documents(summaries))
 
     num_chunks = len(summaries)
-    print(f"Number of chunks: {num_chunks}")
-    print(f"Shape of summary embeddings: {summary_embeds.shape}")
+    logging.info(f"Number of chunks: {num_chunks}")
+    logging.info(f"Shape of summary embeddings: {summary_embeds.shape}")
 
     # Get similarity matrix between the embeddings of the chunk summaries
     summary_similarity_matrix = np.zeros((num_chunks, num_chunks))
@@ -219,7 +220,7 @@ def get_louvain_communities(
     resolution=0.85,
     resolution_step=0.01,
     iterations=40,
-) -> typing.Tuple[List[int], List[List[int]]]:
+) -> Tuple[List[int], List[List[int]]]:
     """
     summary_similarity_matrix is a (n x n) matrix where n is the number of
     chunks generated.
@@ -262,8 +263,8 @@ def get_louvain_communities(
     topic_sizes = [len(c) for c in topics_title]
     sizes_sd = np.std(topic_sizes)
 
-    print(f"Num topics: {len(topics_title)}")
-    print(f"Using resolution {resolution}")
+    logging.info(f"Num topics: {len(topics_title)}")
+    logging.info(f"Using resolution {resolution}")
 
     lowest_sd_iteration = 0
     lowest_sd = float("inf")
@@ -295,8 +296,10 @@ def get_louvain_communities(
 
     # Set the chosen partitioning to be the one with highest modularity
     topics_title = topics_title_accepted[highest_mod_iteration]
-    print(f"Best SD: {lowest_sd}, Best iteration: {lowest_sd_iteration}")
-    print(f"Best modularity: {highest_mod}, Best iteration: {highest_mod_iteration}")
+    logging.info(f"Best SD: {lowest_sd}, Best iteration: {lowest_sd_iteration}")
+    logging.info(
+        f"Best modularity: {highest_mod}, Best iteration: {highest_mod_iteration}"
+    )
 
     # Arrange title_topics in order of topic_id_means
     topic_id_means = [sum(e) / len(e) for e in topics_title]
@@ -423,7 +426,7 @@ def summarize_by_topics(
     topic_outputs = [{"title": t, "summary": s} for t, s in zip(titles, summaries)]
     final_summary = output["output_text"]
 
-    print(f"Stage 2 done time {time.time() - start_time}")
+    logging.info(f"Stage 2 done time {time.time() - start_time}")
 
     return topic_outputs, final_summary, topics_summary_concat, topics_titles_concat
 
@@ -465,7 +468,7 @@ def get_segments_from_topic(
     return topic_segments
 
 
-def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-003"):
+def generate_summary(video: Union[str, Video], model_name="text-davinci-003"):
     # fetch video
     if isinstance(video, str):
         video = db.get_video(video, with_segment=True, columns="id")

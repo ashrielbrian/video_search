@@ -106,6 +106,10 @@ def insert_summary(summaries: typing.List):
     return data
 
 
+def get_video_summary(video_id: str, columns="*"):
+    return supabase.table("summary").select("*").eq("video_id", video_id).execute().data
+
+
 def upload_audio_file(bucket_name: str, dest_path: str, source_path: str):
     res = supabase.storage.from_(bucket_name).upload(
         f"{bucket_name}/{dest_path}", source_path, file_options={"x-upsert": "true"}
