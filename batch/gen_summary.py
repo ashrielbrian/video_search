@@ -26,3 +26,7 @@ def main():
         logger.info(f"Successfully completed summaries for {video_id}.")
         logger.info(f"Excerpt of final_summary: {final_summary[:100]}.")
         logger.info(f"Length of topics: {len(topic_outputs)}.")
+
+
+if __name__ == "__main__":
+    main()
