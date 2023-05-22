@@ -93,7 +93,9 @@ def insert_summary(summaries: typing.List):
                     "title": s.get("title"),
                     "summary": s["summary"],
                     "segment_ids": s["segment_ids"],
-                    "start_segment_id": s.get("start_segment_id"),
+                    "start_segment_ids": s.get("start_segment_ids"),
+                    "concatenated_chunk_summaries": s.get("chunk_summaries"),
+                    "concatenated_chunk_titles": s.get("chunk_titles"),
                 }
                 for s in summaries
             ]

@@ -20,6 +20,36 @@ import networkx as nx
 from networkx.algorithms import community
 
 
+def get_first_element_from_series(ll: List[List[int]]) -> List[List[int]]:
+    """
+    Returns the first element in a consecutive series of integers,
+    strictly ascending, as a list of lists.
+    E.g. Given [
+        [1,2,3,4,9,10,11],
+        [100,101,102,900],
+        [4,5,6,7,8,15,16,17,21,22]
+    ],
+    returns [
+        [1,9],
+        [100,900],
+        [4,15,21]
+    ]
+    """
+    ans = []
+    for l in ll:
+        curr = None
+        sub_ans = []
+        for val in l:
+            if curr is None:
+                sub_ans.append(val)
+            elif val - curr != 1:
+                # new chunk; append first element
+                sub_ans.append(val)
+            curr = val
+        ans.append(sub_ans)
+    return ans
+
+
 def create_sentences(segments, MIN_WORDS, MAX_WORDS):
     # Combine the non-sentences together
     sentences = []
@@ -199,6 +229,10 @@ def get_louvain_communities(
     topics_title[j] contains the list of chunk indexes that belong
     to the j'th topic.
     """
+
+    # select 1/4 of the total num of chunks, or num_topics, whichever is lower.
+    num_topics = min(int(summary_similarity_matrix.shape[0] / 4), num_topics)
+
     proximity_bonus_arr = np.zeros_like(summary_similarity_matrix)
     for row in range(proximity_bonus_arr.shape[0]):
         for col in range(proximity_bonus_arr.shape[1]):
@@ -228,6 +262,7 @@ def get_louvain_communities(
     topic_sizes = [len(c) for c in topics_title]
     sizes_sd = np.std(topic_sizes)
 
+    print(f"Num topics: {len(topics_title)}")
     print(f"Using resolution {resolution}")
 
     lowest_sd_iteration = 0
@@ -250,11 +285,11 @@ def get_louvain_communities(
 
         topics_title_accepted.append(topics_title)
 
-        if sizes_sd < lowest_sd and min(topic_sizes) >= min_size:
-            lowest_sd_iteration = i
-            lowest_sd = sizes_sd
+        # if sizes_sd < lowest_sd and min(topic_sizes) >= min_size:
+        #     lowest_sd_iteration = i
+        #     lowest_sd = sizes_sd
 
-        if modularity > highest_mod:
+        if modularity > highest_mod and min(topic_sizes) >= min_size:
             highest_mod = modularity
             highest_mod_iteration = i
 
@@ -390,7 +425,7 @@ def summarize_by_topics(
 
     print(f"Stage 2 done time {time.time() - start_time}")
 
-    return topic_outputs, final_summary
+    return topic_outputs, final_summary, topics_summary_concat, topics_titles_concat
 
 
 def get_segments_from_topic(
@@ -452,19 +487,22 @@ def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-0
     output_titles = [e["title"] for e in chunk_summaries]
 
     # generate embedding vectors of titles and summaries
-    # TODO: save embeddings of chunk summaries (?)
     summary_similarity = get_embeddings(output_summaries)
 
     # use louvain communities to generate topics
     chunk_topics, topic_groups = get_louvain_communities(summary_similarity)
 
     # use LLM to generate final titles and summaries of each topic
-    topic_outputs, final_summary = summarize_by_topics(
-        chunk_summaries, topic_groups, model_name=model_name
-    )
+    (
+        topic_outputs,
+        final_summary,
+        topics_summary_concat,
+        topics_titles_concat,
+    ) = summarize_by_topics(chunk_summaries, topic_groups, model_name=model_name)
 
     # save to db
     topic_segments = get_segments_from_topic(chunk_topics, chunks, len(topic_groups))
+    start_segments = get_first_element_from_series(topic_segments)
 
     db_summaries = [
         # save the overall summary as order 0
@@ -474,7 +512,9 @@ def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-0
             "title": "Overall Summary",
             "summary": final_summary,
             "segment_ids": [],
-            "start_segment_id": None,
+            "start_segment_ids": None,
+            "chunk_summaries": None,
+            "chunk_titles": None,
         },
         # the rest of the topics starting at order 1
         *[
@@ -484,7 +524,9 @@ def generate_summary(video: typing.Union[str, Video], model_name="text-davinci-0
                 "title": topic["title"],
                 "summary": topic["summary"],
                 "segment_ids": topic_segments[i],
-                "start_segment_id": topic_segments[i][0],
+                "start_segment_ids": start_segments[i],
+                "chunk_summaries": topics_summary_concat[i],
+                "chunk_titles": topics_titles_concat[i],
             }
             for i, topic in enumerate(topic_outputs)
         ],
