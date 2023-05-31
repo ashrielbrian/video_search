@@ -51,3 +51,20 @@ $$;
 create index on segment
 using ivfflat (embedding vector_cosine_ops)
 with (lists = 100);
+
+-- gets the summaries with their associated segment starts for that particular topic
+CREATE OR REPLACE FUNCTION get_summary_segments(p_video_id text)
+RETURNS TABLE (video_id varchar, "order" integer, title text, summary text, start_segment_id integer, start_time float8, text text)
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT su.*, seg.start_time, seg.text
+    FROM (
+        SELECT s.video_id, s."order", s.title, s.summary, unnest(start_segment_ids) AS start_segment_id 
+        FROM summary s 
+        WHERE s.video_id = p_video_id
+    ) su
+    JOIN segment seg
+    ON su.start_segment_id = seg.id AND su.video_id = seg.video_id;
+END;
+$$ LANGUAGE plpgsql;
