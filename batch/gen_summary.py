@@ -15,7 +15,7 @@ def main():
         summaries = get_video_summary(video_id, "order")
         if len(summaries) > 0:
             logger.info(
-                f"Skipping {video_id} - already found {summaries} summaries generated."
+                f"Skipping {video_id} - already found {len(summaries)} summaries generated."
             )
             continue
 
