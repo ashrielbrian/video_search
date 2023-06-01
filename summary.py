@@ -12,7 +12,7 @@ import numpy as np
 from scipy.spatial.distance import cosine
 
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
-from langchain import OpenAI, PromptTemplate, LLMChain
+from langchain import OpenAI, PromptTemplate, LLMChain, Cohere
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
 from langchain.chat_models import ChatOpenAI
@@ -144,11 +144,16 @@ def parse_title_summary_results(results):
 def summarize_chunks(
     chunks_text, model_name="text-davinci-003"
 ) -> List[Dict[str, str]]:
+    model_kwargs = {"temperature": 0, "model_name": model_name}
     # set the model class to instantiate
     if model_name == "text-davinci-003":
         llm_model = OpenAI
     elif model_name == "gpt-3.5-turbo":
         llm_model = ChatOpenAI
+    elif model_name == "command-nightly":
+        del model_kwargs["model_name"]
+        model_kwargs["model"] = model_name
+        llm_model = Cohere
     else:
         raise Exception(f"Model {model_name} not supported.")
 
@@ -169,7 +174,7 @@ def summarize_chunks(
     map_prompt = PromptTemplate(template=map_prompt_template, input_variables=["text"])
 
     # Define the LLMs
-    map_llm = llm_model(temperature=0, model_name=model_name)
+    map_llm = llm_model(**model_kwargs)
     map_llm_chain = LLMChain(llm=map_llm, prompt=map_prompt)
     map_llm_chain_input = [{"text": t} for t in chunks_text]
 
@@ -290,7 +295,7 @@ def get_louvain_communities(
         #     lowest_sd_iteration = i
         #     lowest_sd = sizes_sd
 
-        if modularity > highest_mod and min(topic_sizes) >= min_size:
+        if modularity > highest_mod:
             highest_mod = modularity
             highest_mod_iteration = i
 
@@ -329,6 +334,10 @@ def summarize_by_topics(
         llm_model = OpenAI
     elif model_name == "gpt-3.5-turbo":
         llm_model = ChatOpenAI
+    elif model_name == "command-nightly":
+        del model_kwargs["model_name"]
+        model_kwargs["model"] = model_name
+        llm_model = Cohere
     else:
         raise Exception(f"Model {model_name} not supported.")
 
@@ -484,7 +493,7 @@ def generate_summary(video: Union[str, Video], model_name="text-davinci-003"):
     chunks_text = [chunk["text"].strip() for chunk in chunks]
 
     # use LLM to generate titles and summaries of chunks
-    chunk_summaries = summarize_chunks(chunks_text)
+    chunk_summaries = summarize_chunks(chunks_text, model_name=model_name)
 
     output_summaries = [e["summary"] for e in chunk_summaries]
     output_titles = [e["title"] for e in chunk_summaries]
@@ -537,10 +546,7 @@ def generate_summary(video: Union[str, Video], model_name="text-davinci-003"):
 
     db.insert_summary(db_summaries)
 
-    return (
-        topic_outputs,
-        final_summary,
-    )
+    return topic_outputs, final_summary
 
 
 if __name__ == "__main__":
