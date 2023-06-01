@@ -41,35 +41,6 @@ export interface Database {
           video_id?: string
         }
       }
-      segment_duplicate: {
-        Row: {
-          created_at: string | null
-          end_time: number | null
-          id: number
-          start_time: number | null
-          text: string
-          tokens: number[] | null
-          video_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          end_time?: number | null
-          id: number
-          start_time?: number | null
-          text: string
-          tokens?: number[] | null
-          video_id: string
-        }
-        Update: {
-          created_at?: string | null
-          end_time?: number | null
-          id?: number
-          start_time?: number | null
-          text?: string
-          tokens?: number[] | null
-          video_id?: string
-        }
-      }
       segment_embedding: {
         Row: {
           embedding: string
@@ -84,6 +55,41 @@ export interface Database {
         Update: {
           embedding?: string
           id?: number
+          video_id?: string
+        }
+      }
+      summary: {
+        Row: {
+          concatenated_chunk_summaries: string | null
+          concatenated_chunk_titles: string | null
+          created_at: string | null
+          order: number
+          segment_ids: number[] | null
+          start_segment_ids: number[] | null
+          summary: string
+          title: string | null
+          video_id: string
+        }
+        Insert: {
+          concatenated_chunk_summaries?: string | null
+          concatenated_chunk_titles?: string | null
+          created_at?: string | null
+          order: number
+          segment_ids?: number[] | null
+          start_segment_ids?: number[] | null
+          summary: string
+          title?: string | null
+          video_id: string
+        }
+        Update: {
+          concatenated_chunk_summaries?: string | null
+          concatenated_chunk_titles?: string | null
+          created_at?: string | null
+          order?: number
+          segment_ids?: number[] | null
+          start_segment_ids?: number[] | null
+          summary?: string
+          title?: string | null
           video_id?: string
         }
       }
@@ -127,6 +133,20 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      get_summary_segments: {
+        Args: {
+          p_video_id: string
+        }
+        Returns: {
+          video_id: string
+          order: number
+          title: string
+          summary: string
+          start_segment_id: number
+          start_time: number
+          text: string
+        }[]
+      }
       match_segment: {
         Args: {
           query_embedding: string
