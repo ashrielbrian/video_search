@@ -66,16 +66,23 @@ export const Cell = ({ video }: { video: Video | VideoSearch }) => {
                         )
                     }
 
-                    <div className="flex flex-grow justify-center items-end">
+                    <div className="flex flex-grow justify-center">
                         {"start_time" in video ? (
                             <Link href={url} target="_blank">
                                 <button className="bg-transparent text-indigo-500 font-semibold border border-indigo-500 py-2 px-4 mt-4 mr-2 hover:bg-indigo-600  hover:text-white transition-colors duration-300 ease-in-out">Listen to Snippet</button>
                             </Link>
                         ) : (
                             <Link href={url} target="_blank">
-                                <button className="bg-indigo-500 text-white py-2 px-4 mt-4 hover:bg-indigo-600 transition-colors duration-300 ease-in-out">Watch Sermon</button>
+                                <button className="bg-indigo-500 border text-white py-2 px-4 mt-4 mr-2 hover:bg-indigo-600 transition-colors duration-300 ease-in-out">Watch Sermon</button>
                             </Link>
                         )}
+
+                        <Link href={"summary/" + video.id}>
+                            <button className="text-slate-800 border border-indigo-600 py-2 px-4 mt-4 font-semibold hover:bg-indigo-600 hover:text-white transition-colors duration-300 ease-in-out">
+                                Summary
+                            </button>
+
+                        </Link>
                     </div>
 
                 </div>
