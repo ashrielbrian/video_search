@@ -1,35 +1,35 @@
 import { Assistant } from "next/font/google";
 
-import { Header } from '@/components/Header'
-import { Footer } from '@/components/Footer'
-import './globals.css'
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { Providers } from "./provider";
+import "./globals.css";
 
 export const metadata = {
-    title: 'MLJ Sermons',
+    title: "MLJ Sermons",
     description: `Semantically search across all Martyn Lloyd Jones' sermons`,
-    keywords: "sermons, reformation, martyn-lloyd jones, Christianity, protestant, reformed theology"
-}
+    keywords:
+        "sermons, reformation, martyn-lloyd jones, Christianity, protestant, reformed theology",
+};
 
 const assistant = Assistant({
     weight: ["400", "500", "600", "700"],
-    subsets: ["latin"]
-})
+    subsets: ["latin"],
+});
 
 export default function RootLayout({
     children,
 }: {
-    children: React.ReactNode
+    children: React.ReactNode;
 }) {
     return (
         <html lang="en">
             <body className={assistant.className + " bg-stone-50"}>
-
                 <Header />
-
-                {children}
+                <Providers>{children}</Providers>
 
                 <Footer />
             </body>
         </html>
-    )
+    );
 }

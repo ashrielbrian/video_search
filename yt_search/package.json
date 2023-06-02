@@ -10,6 +10,10 @@
         "update-types": "npx supabase gen types typescript --project-id \"$PROJECT_ID\" > lib/database.types.ts"
     },
     "dependencies": {
+        "@chakra-ui/next-js": "^2.1.4",
+        "@chakra-ui/react": "^2.7.0",
+        "@emotion/react": "^11.11.0",
+        "@emotion/styled": "^11.11.0",
         "@fortawesome/free-solid-svg-icons": "^6.4.0",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@supabase/supabase-js": "^2.21.0",
@@ -18,6 +22,7 @@
         "@types/react-dom": "18.0.11",
         "eslint": "8.37.0",
         "eslint-config-next": "13.2.4",
+        "framer-motion": "^10.12.16",
         "next": "13.2.4",
         "openai": "^3.2.1",
         "react": "18.2.0",
