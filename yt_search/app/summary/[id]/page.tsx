@@ -63,20 +63,34 @@ const getSummary = async (videoId: string) => {
     return null;
 };
 
+const getVideoDetails = async (videoId: string) => {
+    const results = await supabase
+        .from("video")
+        .select("title")
+        .eq("id", videoId)
+        .single();
+
+    return results.data;
+};
+
 const VideoSummaryPage = async ({ params: { id } }: VideoSummaryPageProps) => {
     const res = await getSummary(id);
-    console.log(res);
+    const video = await getVideoDetails(id);
     return (
-        <div className="mx-auto p-4">
+        <div className="text-center max-w-6xl mx-auto p-4">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text">
+                {video?.title}
+            </h2>
             {res && res.overallSummary && res.summaries ? (
-                <div className="flex flex-col">
+                <div className="flex flex-col p-2">
                     <Summary
+                        videoId={id}
                         overallSummary={res.overallSummary}
                         summaries={res.summaries}
                     />
                 </div>
             ) : (
-                <h2 className="text-xl font-extrabold">
+                <h2 className="text-xl font-extrabold p-2">
                     No summary for this video just yet...
                 </h2>
             )}
