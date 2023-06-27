@@ -38,14 +38,12 @@ const TopicItem = ({
     summary,
     segmentStartTimes,
     segmentTexts,
-    keyIdx,
 }: {
     videoId: string;
     title: string;
     summary: string;
     segmentStartTimes: number[];
     segmentTexts: string[];
-    keyIdx: number;
 }) => {
     function formatTime(seconds: number): string {
         const hours = Math.floor(seconds / 3600);
@@ -62,7 +60,7 @@ const TopicItem = ({
     let url = `https://youtube.com/watch?v=${videoId}`;
 
     return (
-        <AccordionItem key={keyIdx}>
+        <AccordionItem>
             <h2>
                 <AccordionButton>
                     <Box as="span" flex="1" textAlign="left">
@@ -75,7 +73,10 @@ const TopicItem = ({
                 <div className="p-2">{summary}</div>
                 <div className="p-4">
                     {segmentStartTimes.map((segment, idx) => (
-                        <div className="border border-indigo-600 rounded-md text-gray-700 p-1 mb-2 hover:underline transition-colors mr-2">
+                        <div
+                            key={idx}
+                            className="border border-indigo-600 rounded-md text-gray-700 p-1 mb-2 hover:underline transition-colors mr-2"
+                        >
                             <Link
                                 href={url + `&t=${Math.floor(segment)}`}
                                 target="_blank"
@@ -152,7 +153,7 @@ const SummaryComponent = ({ videoId, overallSummary, summaries }: Summary) => {
                 {summaries.map((summary, idx) => (
                     <TopicItem
                         videoId={videoId}
-                        keyIdx={idx}
+                        key={idx}
                         title={summary.title}
                         summary={summary.summary}
                         segmentStartTimes={summary.start_times}
