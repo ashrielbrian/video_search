@@ -15,6 +15,18 @@ type Topic = {
     segment_texts: string[];
 };
 
+export async function generateStaticParams() {
+    const { data: video } = await supabase.from("video").select("id");
+
+    if (video) {
+        return video.map(({ id }) => ({
+            id,
+        }));
+    } else {
+        return [];
+    }
+}
+
 const getSummary = async (videoId: string) => {
     const results = await supabase
         .rpc("get_summary_segments", {
