@@ -93,7 +93,7 @@ const VideoSummaryPage = async ({ params: { id } }: VideoSummaryPageProps) => {
             <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text">
                 {video?.title}
             </h2>
-            {res && res.overallSummary && res.summaries ? (
+            {res ? (
                 <div className="flex flex-col p-2">
                     <Summary
                         videoId={id}

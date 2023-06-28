@@ -27,7 +27,7 @@ interface TopicSummary {
 
 interface Summary {
     videoId: string;
-    overallSummary: OverallSummary;
+    overallSummary: OverallSummary | null;
     summaries: TopicSummary[];
 }
 
@@ -100,15 +100,13 @@ const ExpandableText = ({
     text,
     maxLines,
 }: {
-    text: string;
+    text?: string;
     maxLines: number[];
 }) => {
-    // const [expanded, setExpanded] = useState(false);
-    // const toggleExpanded = () => {
-    //     setExpanded(!expanded);
-    // };
-
-    function convertNewlinesToParagraphs(text: string) {
+    function convertNewlinesToParagraphs(text?: string) {
+        if (!text) {
+            return <React.Fragment />;
+        }
         const paragraphs = text.split("\n").map((paragraph, index) => {
             if (paragraph.length > 0) {
                 return (
@@ -123,15 +121,6 @@ const ExpandableText = ({
     }
 
     return (
-        // <Text
-        //     // isTruncated={!expanded}
-        //     noOfLines={!expanded ? maxLines : undefined}
-        //     onClick={toggleExpanded}
-        //     cursor={!expanded ? "pointer" : "initial"}
-        //     className="text-left pr-4 pl-4"
-        // >
-        //     {convertNewlinesToParagraphs(text)}
-        // </Text>
         <div className="text-left pr-8 pl-8">
             {convertNewlinesToParagraphs(text)}
         </div>
@@ -141,11 +130,11 @@ const ExpandableText = ({
 const SummaryComponent = ({ videoId, overallSummary, summaries }: Summary) => {
     return (
         <div className="flex flex-col justify-center text-center mx-auto">
-            <h2 className="font-semibold text-lg">{overallSummary.title}</h2>
+            <h2 className="font-semibold text-lg">{overallSummary?.title}</h2>
 
             {/* <Text noOfLines={[1, 2, 3]}>{overallSummary.summary}</Text> */}
             <ExpandableText
-                text={overallSummary.summary}
+                text={overallSummary?.summary}
                 maxLines={[3, 3, 3]}
             />
             <Accordion>
