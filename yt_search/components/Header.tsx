@@ -8,12 +8,14 @@ export const Header = () => {
                 <div className="flex items-center justify-between">
                     {/* LOGO */}
                     <div className="pt-2 flex-shrink-0 mr-6">
-                        <Image
-                            src="/mlj.svg"
-                            alt="martyn-lloyd-jones icon"
-                            width={40}
-                            height={40}
-                        />
+                        <Link href="/">
+                            <Image
+                                src="/mlj.svg"
+                                alt="martyn-lloyd-jones icon"
+                                width={40}
+                                height={40}
+                            />
+                        </Link>
                     </div>
 
                     {/* Menu Items */}
