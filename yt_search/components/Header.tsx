@@ -1,5 +1,5 @@
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 export const Header = () => {
     return (
         <div className="bg-transprent border-b-2">
@@ -8,15 +8,22 @@ export const Header = () => {
                 <div className="flex items-center justify-between">
                     {/* LOGO */}
                     <div className="pt-2 flex-shrink-0 mr-6">
-                        <Image src="mlj.svg" alt="martyn-lloyd-jones icon" width={40} height={40} />
+                        <Image
+                            src="/mlj.svg"
+                            alt="martyn-lloyd-jones icon"
+                            width={40}
+                            height={40}
+                        />
                     </div>
 
                     {/* Menu Items */}
                     <div className="flex space-x-6">
-                        <Link href="https://github.com/ashrielbrian/video_semsearch">by @ashrielbrian</Link>
+                        <Link href="https://github.com/ashrielbrian/video_semsearch">
+                            by @ashrielbrian
+                        </Link>
                     </div>
                 </div>
             </nav>
         </div>
-    )
-}
+    );
+};
