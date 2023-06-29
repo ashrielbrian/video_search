@@ -91,10 +91,9 @@ const VideoSummaryPage = async ({ params: { id } }: VideoSummaryPageProps) => {
 
     return (
         <div className="text-center max-w-6xl mx-auto p-4">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text mb-4">
                 {video?.title}
             </h2>
-
             <YouTubePlayer videoId={id} />
             {res ? (
                 <div className="flex flex-col p-2">
