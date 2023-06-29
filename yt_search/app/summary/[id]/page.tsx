@@ -72,7 +72,7 @@ const getSummary = async (videoId: string) => {
         return { summaries, overallSummary };
     }
 
-    return null;
+    return { summaries: [], overallSummary: null };
 };
 
 const getVideoDetails = async (videoId: string) => {
@@ -88,24 +88,34 @@ const getVideoDetails = async (videoId: string) => {
 const VideoSummaryPage = async ({ params: { id } }: VideoSummaryPageProps) => {
     const res = await getSummary(id);
     const video = await getVideoDetails(id);
+
+    console.log(res);
+    let content;
+
+    if (res) {
+        content = (
+            <div className="flex flex-col p-2">
+                <Summary
+                    videoId={id}
+                    overallSummary={res.overallSummary}
+                    summaries={res.summaries}
+                />
+            </div>
+        );
+    } else {
+        content = (
+            <h2 className="text-xl font-extrabold p-2">
+                No summary for this video just yet...
+            </h2>
+        );
+    }
+
     return (
         <div className="text-center max-w-6xl mx-auto p-4">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text">
                 {video?.title}
             </h2>
-            {res ? (
-                <div className="flex flex-col p-2">
-                    <Summary
-                        videoId={id}
-                        overallSummary={res.overallSummary}
-                        summaries={res.summaries}
-                    />
-                </div>
-            ) : (
-                <h2 className="text-xl font-extrabold p-2">
-                    No summary for this video just yet...
-                </h2>
-            )}
+            {content}
         </div>
     );
 };
