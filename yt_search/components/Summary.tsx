@@ -6,7 +6,6 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
-    Text,
 } from "@chakra-ui/react";
 import SummarySegment from "./SummarySegment";
 import React, { useState } from "react";
@@ -67,27 +66,6 @@ const TopicItem = ({
                     segmentTexts={segmentTexts}
                     changeVideoTimestamp={changeVideoTimestamp}
                 />
-                {/* <div className="p-4">
-                    {segmentStartTimes.map((segment, idx) => (
-                        <div
-                            key={idx}
-                            className="border border-indigo-600 rounded-md text-gray-700 p-1 mb-2 hover:underline transition-colors mr-2"
-                        >
-                            <Link
-                                href={url + `&t=${Math.floor(segment)}`}
-                                target="_blank"
-                            >
-                                <span className="font-bold">
-                                    {formatTime(segment)}
-                                </span>{" "}
-                                -{" "}
-                                <span className="font-semibold">
-                                    {segmentTexts[idx]}
-                                </span>
-                            </Link>
-                        </div>
-                    ))}
-                </div> */}
             </AccordionPanel>
         </AccordionItem>
     );
