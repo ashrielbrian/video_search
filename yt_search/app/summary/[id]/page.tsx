@@ -94,7 +94,6 @@ const VideoSummaryPage = async ({ params: { id } }: VideoSummaryPageProps) => {
             <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text mb-4">
                 {video?.title}
             </h2>
-            <YouTubePlayer videoId={id} />
             {res ? (
                 <div className="flex flex-col p-2">
                     <Summary
@@ -104,9 +103,12 @@ const VideoSummaryPage = async ({ params: { id } }: VideoSummaryPageProps) => {
                     />
                 </div>
             ) : (
-                <h2 className="text-xl font-extrabold p-2">
-                    No summary for this video just yet...
-                </h2>
+                <>
+                    <YouTubePlayer videoId={id} />
+                    <h2 className="text-xl font-extrabold p-2">
+                        No summary for this video just yet...
+                    </h2>
+                </>
             )}
         </div>
     );
