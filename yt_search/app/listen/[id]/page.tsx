@@ -8,14 +8,6 @@ interface VideoListenPageProps {
     id: string;
 }
 
-type Topic = {
-    title: string;
-    summary: string;
-    segment_ids: number[];
-    start_times: number[];
-    segment_texts: string[];
-};
-
 export async function generateStaticParams() {
     const { data: video } = await supabase.from("video").select("id");
 
@@ -59,8 +51,6 @@ const VideoListenPage = async ({
 }) => {
     const res = await getSummary(id);
     const video = await getVideoDetails(id);
-
-    console.log(ts, content);
 
     return (
         <div className="text-center max-w-6xl mx-auto p-4">
