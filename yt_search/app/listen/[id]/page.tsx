@@ -59,9 +59,16 @@ const VideoListenPage = async ({
             </h2>
             {res ? (
                 <div className="flex flex-col p-2">
-                    <Text className="font-bold text-lg text-slate-700 mb-4">
-                        {content}
-                    </Text>
+                    <div className="border rounded-xl border-black p-4 mb-8 bg-white">
+                        <Text className="font-bold text-lg text-slate-700 mb-4">
+                            {content}{" "}
+                            {content.endsWith(".") ||
+                            content.endsWith("!") ||
+                            content.endsWith("?")
+                                ? ""
+                                : "..."}
+                        </Text>
+                    </div>
                     <Summary
                         videoId={id}
                         overallSummary={res.overallSummary}
