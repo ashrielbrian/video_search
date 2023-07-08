@@ -16,6 +16,7 @@ const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
         height: "390",
         width: "640",
         playerVars: {
+            autoplay: 1,
             start: timestamp?.toString(), // Specify the timestamp in seconds
             // You can customize the player by passing additional parameters here
         },

@@ -8,8 +8,9 @@ import {
     Box,
     Text,
 } from "@chakra-ui/react";
-import Link from "next/link";
-import React from "react";
+import SummarySegment from "./SummarySegment";
+import React, { useState } from "react";
+import YouTubePlayer from "./Youtube";
 
 interface OverallSummary {
     order: number;
@@ -37,25 +38,15 @@ const TopicItem = ({
     summary,
     segmentStartTimes,
     segmentTexts,
+    changeVideoTimestamp,
 }: {
     videoId: string;
     title: string;
     summary: string;
     segmentStartTimes: number[];
     segmentTexts: string[];
+    changeVideoTimestamp: (s: number) => void;
 }) => {
-    function formatTime(seconds: number): string {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const remainingSeconds = (seconds % 60).toFixed(0);
-
-        const formattedHours = String(hours).padStart(2, "0");
-        const formattedMinutes = String(minutes).padStart(2, "0");
-        const formattedSeconds = String(remainingSeconds).padStart(2, "0");
-
-        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-    }
-
     let url = `https://youtube.com/watch?v=${videoId}`;
 
     return (
@@ -70,7 +61,12 @@ const TopicItem = ({
             </h2>
             <AccordionPanel pb={4} className="text-left">
                 <div className="p-2">{summary}</div>
-                <div className="p-4">
+                <SummarySegment
+                    segmentStartTimes={segmentStartTimes}
+                    segmentTexts={segmentTexts}
+                    changeVideoTimestamp={changeVideoTimestamp}
+                />
+                {/* <div className="p-4">
                     {segmentStartTimes.map((segment, idx) => (
                         <div
                             key={idx}
@@ -90,7 +86,7 @@ const TopicItem = ({
                             </Link>
                         </div>
                     ))}
-                </div>
+                </div> */}
             </AccordionPanel>
         </AccordionItem>
     );
@@ -128,28 +124,39 @@ const ExpandableText = ({
 };
 
 const SummaryComponent = ({ videoId, overallSummary, summaries }: Summary) => {
-    return (
-        <div className="flex flex-col justify-center text-center mx-auto">
-            <h2 className="font-semibold text-lg">{overallSummary?.title}</h2>
+    const [startTime, setStartTime] = useState(0);
+    const changeVideoTimestamp = (s: number) => {
+        setStartTime(s);
+    };
 
-            {/* <Text noOfLines={[1, 2, 3]}>{overallSummary.summary}</Text> */}
-            <ExpandableText
-                text={overallSummary?.summary}
-                maxLines={[3, 3, 3]}
-            />
-            <Accordion>
-                {summaries.map((summary, idx) => (
-                    <TopicItem
-                        videoId={videoId}
-                        key={idx}
-                        title={summary.title}
-                        summary={summary.summary}
-                        segmentStartTimes={summary.start_times}
-                        segmentTexts={summary.segment_texts}
-                    />
-                ))}
-            </Accordion>
-        </div>
+    return (
+        <>
+            <YouTubePlayer videoId={videoId} timestamp={startTime} />
+            <div className="flex flex-col justify-center text-center mx-auto">
+                <h2 className="font-semibold text-lg">
+                    {overallSummary?.title}
+                </h2>
+
+                {/* <Text noOfLines={[1, 2, 3]}>{overallSummary.summary}</Text> */}
+                <ExpandableText
+                    text={overallSummary?.summary}
+                    maxLines={[3, 3, 3]}
+                />
+                <Accordion>
+                    {summaries.map((summary, idx) => (
+                        <TopicItem
+                            videoId={videoId}
+                            key={idx}
+                            title={summary.title}
+                            summary={summary.summary}
+                            segmentStartTimes={summary.start_times}
+                            segmentTexts={summary.segment_texts}
+                            changeVideoTimestamp={changeVideoTimestamp}
+                        />
+                    ))}
+                </Accordion>
+            </div>
+        </>
     );
 };
 
