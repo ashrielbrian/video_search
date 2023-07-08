@@ -30,6 +30,7 @@ interface Summary {
     videoId: string;
     overallSummary: OverallSummary | null;
     summaries: TopicSummary[];
+    timestamp?: number;
 }
 
 const TopicItem = ({
@@ -123,8 +124,13 @@ const ExpandableText = ({
     );
 };
 
-const SummaryComponent = ({ videoId, overallSummary, summaries }: Summary) => {
-    const [startTime, setStartTime] = useState(0);
+const SummaryComponent = ({
+    videoId,
+    overallSummary,
+    summaries,
+    timestamp,
+}: Summary) => {
+    const [startTime, setStartTime] = useState(timestamp ? timestamp : 0);
     const changeVideoTimestamp = (s: number) => {
         setStartTime(s);
     };
@@ -132,10 +138,8 @@ const SummaryComponent = ({ videoId, overallSummary, summaries }: Summary) => {
     return (
         <>
             <YouTubePlayer videoId={videoId} timestamp={startTime} />
-            <div className="flex flex-col justify-center text-center mx-auto">
-                <h2 className="font-semibold text-lg">
-                    {overallSummary?.title}
-                </h2>
+            <div className="flex flex-col justify-center text-center mx-auto mt-8">
+                <h2 className="font-bold text-lg">{overallSummary?.title}</h2>
 
                 {/* <Text noOfLines={[1, 2, 3]}>{overallSummary.summary}</Text> */}
                 <ExpandableText

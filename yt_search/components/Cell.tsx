@@ -18,10 +18,6 @@ export const Cell = ({ video }: { video: Video | VideoSearch }) => {
     let mljLink,
         videoDesc = "";
 
-    if ("start_time" in video) {
-        url = url + `&t=${Math.floor(video.start_time)}`;
-    }
-
     if ("content" in video) {
         desc = `...${video.content}`;
     } else {
@@ -71,8 +67,10 @@ export const Cell = ({ video }: { video: Video | VideoSearch }) => {
 
                     <div className="flex flex-grow justify-center">
                         {"start_time" in video ? (
-                            <Link href={url} target="_blank">
-                                <button className="bg-transparent text-indigo-500 font-semibold border border-indigo-500 py-2 px-4 mt-4 mr-2 hover:bg-indigo-600  hover:text-white transition-colors duration-300 ease-in-out">
+                            <Link
+                                href={`listen/${video.id}?ts=${video.start_time}&content=${desc}`}
+                            >
+                                <button className="bg-indigo-500 border text-white py-2 px-4 mt-4 mr-2 hover:bg-indigo-600 transition-colors duration-300 ease-in-out">
                                     Listen to Snippet
                                 </button>
                             </Link>
@@ -85,7 +83,7 @@ export const Cell = ({ video }: { video: Video | VideoSearch }) => {
                         )}
 
                         <Link href={"summary/" + video.id}>
-                            <button className="text-slate-800 border border-indigo-600 py-2 px-4 mt-4 font-semibold hover:bg-indigo-600 hover:text-white transition-colors duration-300 ease-in-out">
+                            <button className="text-indigo-500 border border-indigo-600 py-2 px-4 mt-4 font-semibold hover:bg-indigo-600 hover:text-white transition-colors duration-300 ease-in-out">
                                 Summary
                             </button>
                         </Link>
