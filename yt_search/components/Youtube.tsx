@@ -13,8 +13,8 @@ const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     timestamp,
 }) => {
     const opts = {
-        height: "390",
-        width: "640",
+        // height: "390",
+        // width: "640",
         playerVars: {
             autoplay: 1,
             start: timestamp?.toString(), // Specify the timestamp in seconds
@@ -23,9 +23,7 @@ const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     };
 
     return (
-        <div className="flex justify-center items-center">
-            <YouTube videoId={videoId} opts={opts} />
-        </div>
+        <YouTube videoId={videoId} opts={opts} className="relative overflow:hidden pt-[56.25%]" iframeClassName="absolute top-0 left-0 w-full h-full" />
     );
 };
 
