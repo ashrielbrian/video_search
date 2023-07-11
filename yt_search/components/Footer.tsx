@@ -1,12 +1,12 @@
 export const Footer = () => {
     return (
-        <footer className="bg-white rounded-lg shado shadow-md border border-indigo-500 m-8 ">
+        <footer className="bg-white rounded-lg shado shadow-md border border-indigo-500 mb-4 mx-8 ">
             <div className="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
                 <span className="text-md text-black-500 sm:text-center dark:text-black-400 ">
                     © Audio Sermons belong to{" "}
                     <a
                         href="https://www.mljtrust.org/"
-                        className="hover:underline"
+                        className="underline"
                     >
                         MLJ Trust
                     </a>
