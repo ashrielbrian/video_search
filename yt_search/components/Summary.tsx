@@ -10,6 +10,7 @@ import {
 import SummarySegment from "./SummarySegment";
 import React, { useState } from "react";
 import YouTubePlayer from "./Youtube";
+import convertNewlinesToParagraphs from "./NewlineText";
 
 interface OverallSummary {
     order: number;
@@ -50,7 +51,7 @@ const TopicItem = ({
     let url = `https://youtube.com/watch?v=${videoId}`;
 
     return (
-        <AccordionItem>
+        <AccordionItem my={4} className="border border-black">
             <h2>
                 <AccordionButton>
                     <Box as="span" flex="1" textAlign="left">
@@ -59,8 +60,8 @@ const TopicItem = ({
                     <AccordionIcon />
                 </AccordionButton>
             </h2>
-            <AccordionPanel pb={4} className="text-left">
-                <div className="p-2">{summary}</div>
+            <AccordionPanel pb={4} className="text-left w-full">
+                <div className="text-left text-md px-1 lg:px-8 lg:text-lg">{summary}</div>
                 <SummarySegment
                     segmentStartTimes={segmentStartTimes}
                     segmentTexts={segmentTexts}
@@ -78,25 +79,9 @@ const ExpandableText = ({
     text?: string;
     maxLines: number[];
 }) => {
-    function convertNewlinesToParagraphs(text?: string) {
-        if (!text) {
-            return <React.Fragment />;
-        }
-        const paragraphs = text.split("\n").map((paragraph, index) => {
-            if (paragraph.length > 0) {
-                return (
-                    <React.Fragment key={index}>
-                        <p>{paragraph}</p>
-                        <br />
-                    </React.Fragment>
-                );
-            }
-        });
-        return paragraphs;
-    }
 
     return (
-        <div className="text-left pr-8 pl-8">
+        <div className="text-left text-md px-1 lg:px-8 lg:text-lg">
             {convertNewlinesToParagraphs(text)}
         </div>
     );
@@ -116,15 +101,29 @@ const SummaryComponent = ({
     return (
         <>
             <YouTubePlayer videoId={videoId} timestamp={startTime} />
-            <div className="flex flex-col justify-center text-center mx-auto mt-8">
-                <h2 className="font-bold text-lg">{overallSummary?.title}</h2>
+            <div className="flex flex-col justify-center text-center mx-auto lg:mx-16 xl:mx-24 mt-8">
 
-                {/* <Text noOfLines={[1, 2, 3]}>{overallSummary.summary}</Text> */}
-                <ExpandableText
-                    text={overallSummary?.summary}
-                    maxLines={[3, 3, 3]}
-                />
-                <Accordion>
+                <Accordion allowToggle>
+                    <AccordionItem className="border border-black">
+                        <h2>
+                            <AccordionButton>
+                                <Box as="span" flex="1" textAlign="center">
+                                    <span className="font-bold text-md lg:text-lg">{overallSummary?.title}</span>
+                                </Box>
+                                <AccordionIcon />
+                            </AccordionButton>
+                        </h2>
+
+                        <AccordionPanel pb={2}>
+                            <ExpandableText
+                                text={overallSummary?.summary}
+                                maxLines={[3, 3, 3]}
+                            />
+                        </AccordionPanel>
+                    </AccordionItem>
+                </Accordion>
+
+                <Accordion allowToggle>
                     {summaries.map((summary, idx) => (
                         <TopicItem
                             videoId={videoId}

@@ -76,8 +76,8 @@ export default function Home() {
                     <span className="bg-gradient-to-r from-indigo-600 to-red-400 text-transparent bg-clip-text">Dr. Martyn LLoyd-Jones</span>
                 </h1>
 
-                <p className="mt-2 text-gray-700">Search over 1600 sermons from the Good Doctor. E.g., try <span className="font-semibold">&quot;why do good people suffer?&quot;</span> </p>
-                <p className="mt-1 text-gray-700">Sermons indexed from the <a href="https://www.mljtrust.org/" target="_blank" className="hover:underline hover:font-semibold">MLJ Trust&apos;s</a> sermon library. </p>
+                <p className="mt-2 mx-4 lg:mx-2 lg:text-lg text-gray-700">Search over 1600 sermons from the Good Doctor. E.g., try <span className="font-semibold">&quot;why do good people suffer?&quot;</span> </p>
+                <p className="mt-1 mx-4 lg:mx-2 lg:text-lg text-gray-700">Sermons indexed from the <a href="https://www.mljtrust.org/" target="_blank" className="hover:underline hover:font-semibold">MLJ Trust&apos;s</a> sermon library. </p>
 
                 {/* Search box */}
                 <SearchBox
