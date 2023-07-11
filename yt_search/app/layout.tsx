@@ -24,7 +24,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className={assistant.className + " bg-stone-50"}>
+            <body className={assistant.className + " bg-stone-100"}>
                 <Header />
                 <Providers>{children}</Providers>
 
