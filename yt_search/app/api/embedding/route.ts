@@ -1,3 +1,6 @@
+// see https://vercel.com/docs/functions/configuring-functions/duration
+export const maxDuration = 25; // This function can run for a maximum of 5 seconds
+
 import { NextResponse } from "next/server";
 import supabase from "@/utils/supabase";
 import { Configuration, OpenAIApi } from "openai";
