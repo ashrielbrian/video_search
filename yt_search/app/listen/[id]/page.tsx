@@ -1,7 +1,14 @@
-"use client";
 import supabase from "@/utils/supabase";
 import YouTubePlayer from "@/components/Youtube";
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Text } from "@chakra-ui/react";
+import {
+    Accordion,
+    AccordionButton,
+    AccordionIcon,
+    AccordionItem,
+    AccordionPanel,
+    Box,
+    Text,
+} from "@chakra-ui/react";
 import { formatTime } from "@/utils/util";
 import convertNewlinesToParagraphs from "@/components/NewlineText";
 
@@ -61,15 +68,17 @@ const VideoListenPage = async ({
             {res ? (
                 <div className="flex flex-col p-2">
                     <div className="border rounded-md border-indigo-600 p-4 mb-8 bg-white text-indigo-700 font-bold text-sm md:text-md lg:text-lg">
-                        <span className="font-bold underline">{formatTime(parseInt(ts))}</span> {" "}
-                        <span className="font-semibold">{content}{" "}
+                        <span className="font-bold underline">
+                            {formatTime(parseInt(ts))}
+                        </span>{" "}
+                        <span className="font-semibold">
+                            {content}{" "}
                             {content.endsWith(".") ||
                                 content.endsWith("!") ||
                                 content.endsWith("?")
                                 ? ""
                                 : "..."}
                         </span>
-
                     </div>
                     <YouTubePlayer videoId={id} timestamp={parseInt(ts)} />
 
@@ -78,7 +87,9 @@ const VideoListenPage = async ({
                             <h2>
                                 <AccordionButton>
                                     <Box as="span" flex="1" textAlign="center">
-                                        <span className="font-bold text-md lg:text-lg">{res.overallSummary?.title}</span>
+                                        <span className="font-bold text-md lg:text-lg">
+                                            {res.overallSummary?.title}
+                                        </span>
                                     </Box>
                                     <AccordionIcon />
                                 </AccordionButton>
